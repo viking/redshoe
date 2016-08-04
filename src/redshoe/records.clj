@@ -8,7 +8,7 @@
 (defn- process-item
   [{ tag :tag content :content }]
   (when (= :item tag)
-    (into {} (map process-item-content content))))
+    (into (sorted-map) (map process-item-content content))))
 
 (defn- process-records
   [{ tag :tag content :content }]
