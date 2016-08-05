@@ -1,4 +1,4 @@
-(ns redshoe.records)
+(ns redshoe.xml)
 
 (defn- process-item-content
   [{ tag :tag content :content }]
@@ -15,6 +15,6 @@
   (when (= :records tag)
     (map process-item content)))
 
-(defn from-xml
+(defn tree->seq
   [doc]
   (process-records doc))
