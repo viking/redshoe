@@ -3,6 +3,10 @@
             [redshoe.http :as http]
             [redshoe.xml :as xml]))
 
+(defn export-dictionary
+  [url token]
+  (xml/tags->seq (http/export-dictionary url token)))
+
 (defn export-chunked-records
   "Fetch records from the REDCap API in chunks to mitigate REDCap API timeout
   issues"
