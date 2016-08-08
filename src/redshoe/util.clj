@@ -12,7 +12,7 @@
   issues"
   ([url token primary-key size]
     (when-let [doc (http/export-field-values url token primary-key)]
-      (->> (xml/tree->seq doc)
+      (->> (xml/tags->seq doc)
            (map (keyword primary-key))
            (partition-all size)
            (export-chunked-records url token))))
@@ -20,5 +20,5 @@
    (if-not (empty? id-partitions)
      (let [ids (string/join "," (first id-partitions))]
        (lazy-cat
-         (xml/tree->seq (http/export-records url token {:records ids}))
+         (xml/tags->seq (http/export-records url token {:records ids}))
          (export-chunked-records url token (rest id-partitions)))))))
