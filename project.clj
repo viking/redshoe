@@ -4,6 +4,7 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]
+                 [org.clojure/data.csv "0.1.3"]
                  [clj-http "3.1.0"]]
   :main ^:skip-aot redshoe.core
   :target-path "target/%s"
