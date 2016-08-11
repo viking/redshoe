@@ -7,6 +7,10 @@
   [url token]
   (xml/records->seq (http/export-dictionary url token)))
 
+(defn export-arms
+  [url token]
+  (xml/arms->seq (http/export-arms url token)))
+
 (defn export-chunked-records
   "Fetch records from the REDCap API in chunks to mitigate REDCap API timeout
   issues"
