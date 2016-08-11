@@ -5,14 +5,14 @@
 
 (defn export-dictionary
   [url token]
-  (xml/tags->seq (http/export-dictionary url token)))
+  (xml/records->seq (http/export-dictionary url token)))
 
 (defn export-chunked-records
   "Fetch records from the REDCap API in chunks to mitigate REDCap API timeout
   issues"
   ([url token primary-key size]
     (when-let [doc (http/export-field-values url token primary-key)]
-      (->> (xml/tags->seq doc)
+      (->> (xml/records->seq doc)
            (map (keyword primary-key))
            (partition-all size)
            (export-chunked-records url token))))
@@ -20,5 +20,5 @@
    (if-not (empty? id-partitions)
      (let [ids (string/join "," (first id-partitions))]
        (lazy-cat
-         (xml/tags->seq (http/export-records url token {:records ids}))
+         (xml/records->seq (http/export-records url token {:records ids}))
          (export-chunked-records url token (rest id-partitions)))))))

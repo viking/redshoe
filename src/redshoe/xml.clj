@@ -15,7 +15,7 @@
   (when (= :records tag)
     (map process-item-tag content)))
 
-(defn tags->seq
+(defn records->seq
   [doc]
   (process-records-tag doc))
 
@@ -40,7 +40,7 @@
    :attrs nil
    :content (mapv process-item-map s) })
 
-(defn seq->tags
+(defn seq->records
   [s]
   (process-records-seq s))
 
