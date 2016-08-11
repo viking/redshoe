@@ -1,5 +1,7 @@
 (ns redshoe.xml)
 
+; Conversion from XML structures to sequences
+
 (defn- process-field-tag
   [{ tag :tag content :content }]
   (when content
@@ -15,9 +17,20 @@
   (when (= :records tag)
     (map process-item-tag content)))
 
+(defn- process-arms-tag
+  [{ tag :tag content :content }]
+  (when (= :arms tag)
+    (map process-item-tag content)))
+
 (defn records->seq
   [doc]
   (process-records-tag doc))
+
+(defn arms->seq
+  [doc]
+  (process-arms-tag doc))
+
+; Conversion from sequences to XML structures
 
 (defn- process-field-pairs
   [[field-name value]]
@@ -40,7 +53,17 @@
    :attrs nil
    :content (mapv process-item-map s) })
 
+(defn- process-arms-seq
+  [s]
+  {
+   :tag :arms
+   :attrs nil
+   :content (mapv process-item-map s) })
+
 (defn seq->records
   [s]
   (process-records-seq s))
 
+(defn seq->arms
+  [s]
+  (process-arms-seq s))

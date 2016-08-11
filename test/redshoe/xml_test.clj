@@ -22,3 +22,19 @@
       (is (=
            data
            (seq->records '({ :foo "bar" } { :baz "qux" })))))))
+
+(deftest test-arms->seq
+  (testing "Converting XML arms structure to a sequence"
+    (let [s "<arms><item><foo>bar</foo></item><item><baz>qux</baz></item></arms>"
+          data (parse-xml-str s)]
+      (is (=
+           '({ :foo "bar" } { :baz "qux" })
+           (arms->seq data))))))
+
+(deftest test-seq->arms
+  (testing "Converting a sequence to an XML arms structure"
+    (let [s "<arms><item><foo>bar</foo></item><item><baz>qux</baz></item></arms>"
+          data (parse-xml-str s)]
+      (is (=
+           data
+           (seq->arms '({ :foo "bar" } { :baz "qux" })))))))
