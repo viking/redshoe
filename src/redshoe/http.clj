@@ -5,9 +5,12 @@
 (defn- do-export
   [url token content options]
   (let [params (merge {:token token, :format "xml", :content content} options)
-        request (client/post url {:form-params params, :as :stream})]
-    (when (= 200 (:status request))
-      (xml/parse (:body request)))))
+        opts { :form-params params, :as :stream, :throw-exceptions false }
+        request (client/post url opts)]
+    (if (= 200 (:status request))
+      (xml/parse (:body request))
+      (binding [*out* *err*]
+        (println (slurp (:body request)))))))
 
 (defn- do-import
   [url token content tags options]
@@ -22,6 +25,13 @@
   "Fetch the data dictionary from the REDCap API"
   [url token]
   (do-export url token "metadata" {}))
+
+(defn export-arms
+  "Fetch event arms from the REDCap API in XML format and parse"
+  ([url token]
+   (export-arms url token {}))
+  ([url token options]
+   (do-export url token "arm" options)))
 
 (defn export-records
   "Fetch records from the REDCap API in XML format and parse"
