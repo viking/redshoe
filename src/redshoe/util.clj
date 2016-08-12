@@ -19,6 +19,12 @@
   [url token]
   (xml/items->seq (http/export-mappings url token)))
 
+(defn export-records
+  ([url token]
+   (export-records url token {}))
+  ([url token options]
+   (xml/records->seq (http/export-records url token options))))
+
 (defn export-chunked-records
   "Fetch records from the REDCap API in chunks to mitigate REDCap API timeout
   issues"
@@ -32,5 +38,5 @@
    (if-not (empty? id-partitions)
      (let [ids (string/join "," (first id-partitions))]
        (lazy-cat
-         (xml/records->seq (http/export-records url token {:records ids}))
+         (export-records url token {:records ids})
          (export-chunked-records url token (rest id-partitions)))))))
