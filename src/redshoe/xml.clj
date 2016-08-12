@@ -22,6 +22,11 @@
   (when (= :arms tag)
     (map process-item-tag content)))
 
+(defn- process-events-tag
+  [{ tag :tag content :content }]
+  (when (= :events tag)
+    (map process-item-tag content)))
+
 (defn records->seq
   [doc]
   (process-records-tag doc))
@@ -29,6 +34,10 @@
 (defn arms->seq
   [doc]
   (process-arms-tag doc))
+
+(defn events->seq
+  [doc]
+  (process-events-tag doc))
 
 ; Conversion from sequences to XML structures
 
@@ -60,6 +69,13 @@
    :attrs nil
    :content (mapv process-item-map s) })
 
+(defn- process-events-seq
+  [s]
+  {
+   :tag :events
+   :attrs nil
+   :content (mapv process-item-map s) })
+
 (defn seq->records
   [s]
   (process-records-seq s))
@@ -67,3 +83,7 @@
 (defn seq->arms
   [s]
   (process-arms-seq s))
+
+(defn seq->events
+  [s]
+  (process-events-seq s))

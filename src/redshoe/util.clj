@@ -11,6 +11,10 @@
   [url token]
   (xml/arms->seq (http/export-arms url token)))
 
+(defn export-events
+  [url token]
+  (xml/events->seq (http/export-events url token)))
+
 (defn export-chunked-records
   "Fetch records from the REDCap API in chunks to mitigate REDCap API timeout
   issues"

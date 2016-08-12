@@ -33,6 +33,13 @@
   ([url token options]
    (do-export url token "arm" options)))
 
+(defn export-events
+  "Fetch events from the REDCap API in XML format and parse"
+  ([url token]
+   (export-events url token {}))
+  ([url token options]
+   (do-export url token "event" options)))
+
 (defn export-records
   "Fetch records from the REDCap API in XML format and parse"
   ([url token]
