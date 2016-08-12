@@ -54,3 +54,19 @@
       (is (=
            data
            (seq->events '({ :foo "bar" } { :baz "qux" })))))))
+
+(deftest test-items->seq
+  (testing "Converting XML items structure to a sequence"
+    (let [s "<items><item><foo>bar</foo></item><item><baz>qux</baz></item></items>"
+          data (parse-xml-str s)]
+      (is (=
+           '({ :foo "bar" } { :baz "qux" })
+           (items->seq data))))))
+
+(deftest test-seq->items
+  (testing "Converting a sequence to an XML items structure"
+    (let [s "<items><item><foo>bar</foo></item><item><baz>qux</baz></item></items>"
+          data (parse-xml-str s)]
+      (is (=
+           data
+           (seq->items '({ :foo "bar" } { :baz "qux" })))))))

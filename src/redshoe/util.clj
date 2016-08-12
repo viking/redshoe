@@ -15,6 +15,10 @@
   [url token]
   (xml/events->seq (http/export-events url token)))
 
+(defn export-mappings
+  [url token]
+  (xml/items->seq (http/export-mappings url token)))
+
 (defn export-chunked-records
   "Fetch records from the REDCap API in chunks to mitigate REDCap API timeout
   issues"
