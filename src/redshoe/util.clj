@@ -3,27 +3,12 @@
             [redshoe.http :as http]
             [redshoe.xml :as xml]))
 
-(defn export-dictionary
-  [url token]
-  (xml/records->seq (http/export-dictionary url token)))
-
-(defn export-arms
-  [url token]
-  (xml/arms->seq (http/export-arms url token)))
-
-(defn export-events
-  [url token]
-  (xml/events->seq (http/export-events url token)))
-
-(defn export-mappings
-  [url token]
-  (xml/items->seq (http/export-mappings url token)))
-
-(defn export-records
-  ([url token]
-   (export-records url token {}))
-  ([url token options]
-   (xml/records->seq (http/export-records url token options))))
+; Helper composition functions
+(def export-dictionary (comp xml/records->seq http/export-dictionary))
+(def export-arms (comp xml/arms->seq http/export-arms))
+(def export-events (comp xml/events->seq http/export-events))
+(def export-mappings (comp xml/items->seq http/export-mappings))
+(def export-records (comp xml/records->seq http/export-records))
 
 (defn export-chunked-records
   "Fetch records from the REDCap API in chunks to mitigate REDCap API timeout
