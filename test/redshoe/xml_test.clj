@@ -70,3 +70,19 @@
       (is (=
            data
            (seq->items '({ :foo "bar" } { :baz "qux" })))))))
+
+(deftest test-fields->seq
+  (testing "Converting XML fields structure to a sequence"
+    (let [s "<fields><field><foo>bar</foo></field><field><baz>qux</baz></field></fields>"
+          data (parse-xml-str s)]
+      (is (=
+           '({ :foo "bar" } { :baz "qux" })
+           (fields->seq data))))))
+
+(deftest test-seq->fields
+  (testing "Converting a sequence to an XML fields structure"
+    (let [s "<fields><field><foo>bar</foo></field><field><baz>qux</baz></field></fields>"
+          data (parse-xml-str s)]
+      (is (=
+           data
+           (seq->fields '({ :foo "bar" } { :baz "qux" })))))))

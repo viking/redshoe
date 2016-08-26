@@ -9,6 +9,7 @@
 (def export-events (comp xml/events->seq http/export-events))
 (def export-mappings (comp xml/items->seq http/export-mappings))
 (def export-records (comp xml/records->seq http/export-records))
+(def export-field-names (comp xml/fields->seq http/export-field-names))
 
 (defn- organize-event
   [field-groups mapping-groups event]

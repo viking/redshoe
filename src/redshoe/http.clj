@@ -47,6 +47,13 @@
   ([url token options]
    (do-export url token "formEventMapping" options)))
 
+(defn export-field-names
+  "Fetch field names from the REDCap API in XML format and parse"
+  ([url token]
+   (export-field-names url token {}))
+  ([url token options]
+   (do-export url token "exportFieldNames" options)))
+
 (defn export-records
   "Fetch records from the REDCap API in XML format and parse"
   ([url token]

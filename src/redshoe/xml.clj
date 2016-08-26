@@ -2,7 +2,7 @@
 
 ; Conversion from XML structures to sequences
 
-(defn- process-field-tag
+(defn- process-generic-tag
   [{ tag :tag content :content }]
   (when content
     [tag (first content)]))
@@ -10,7 +10,12 @@
 (defn- process-item-tag
   [{ tag :tag content :content }]
   (when (= :item tag)
-    (into {} (map process-field-tag content))))
+    (into {} (map process-generic-tag content))))
+
+(defn- process-field-tag
+  [{ tag :tag content :content }]
+  (when (= :field tag)
+    (into {} (map process-generic-tag content))))
 
 (defn- process-records-tag
   [{ tag :tag content :content }]
@@ -32,6 +37,11 @@
   (when (= :items tag)
     (map process-item-tag content)))
 
+(defn- process-fields-tag
+  [{ tag :tag content :content }]
+  (when (= :fields tag)
+    (map process-field-tag content)))
+
 (defn records->seq
   [doc]
   (process-records-tag doc))
@@ -48,12 +58,16 @@
   [doc]
   (process-items-tag doc))
 
+(defn fields->seq
+  [doc]
+  (process-fields-tag doc))
+
 ; Conversion from sequences to XML structures
 
-(defn- process-field-pairs
-  [[field-name value]]
+(defn- process-generic-pairs
+  [[tag-name value]]
   {
-   :tag (keyword field-name)
+   :tag (keyword tag-name)
    :attrs nil
    :content [value] })
 
@@ -62,7 +76,14 @@
   {
    :tag :item
    :attrs nil
-   :content (mapv process-field-pairs m) })
+   :content (mapv process-generic-pairs m) })
+
+(defn- process-field-map
+  [m]
+  {
+   :tag :field
+   :attrs nil
+   :content (mapv process-generic-pairs m) })
 
 (defn- process-records-seq
   [s]
@@ -92,6 +113,13 @@
    :attrs nil
    :content (mapv process-item-map s) })
 
+(defn- process-fields-seq
+  [s]
+  {
+   :tag :fields
+   :attrs nil
+   :content (mapv process-field-map s) })
+
 (defn seq->records
   [s]
   (process-records-seq s))
@@ -107,3 +135,7 @@
 (defn seq->items
   [s]
   (process-items-seq s))
+
+(defn seq->fields
+  [s]
+  (process-fields-seq s))
