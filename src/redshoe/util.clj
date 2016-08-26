@@ -10,6 +10,38 @@
 (def export-mappings (comp xml/items->seq http/export-mappings))
 (def export-records (comp xml/records->seq http/export-records))
 
+(defn- organize-event
+  [field-groups mapping-groups event]
+  (->>
+    (get mapping-groups (:unique_event_name event))
+    (map :form)
+    (select-keys field-groups)
+    (assoc event :forms)))
+
+(defn- organize-arm
+  [field-groups mapping-groups event-groups arm]
+  (->>
+    (get event-groups (:arm_num arm))
+    (map (partial organize-event field-groups mapping-groups))
+    (assoc arm :events)))
+
+(defn- organize-arms
+  [field-groups mapping-groups event-groups arms]
+  (map (partial organize-arm field-groups mapping-groups event-groups) arms))
+
+(defn export-arms-tree
+  "Fetch field metadata and organize by arm and event"
+  [url token]
+  (let [fields (export-dictionary url token)
+        mappings (export-mappings url token)
+        events (export-events url token)
+        arms (export-arms url token)]
+    (organize-arms
+      (group-by :form_name fields)
+      (group-by :unique_event_name mappings)
+      (group-by :arm_num events)
+      arms)))
+
 (defn export-chunked-records
   "Fetch records from the REDCap API in chunks to mitigate REDCap API timeout
   issues"
