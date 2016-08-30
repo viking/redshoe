@@ -4,7 +4,7 @@
             [redshoe.xml :as xml]))
 
 ; Helper composition functions
-(def export-dictionary (comp xml/records->seq http/export-dictionary))
+(def export-fields (comp xml/records->seq http/export-fields))
 (def export-arms (comp xml/arms->seq http/export-arms))
 (def export-events (comp xml/events->seq http/export-events))
 (def export-mappings (comp xml/items->seq http/export-mappings))
@@ -43,7 +43,7 @@
   "Fetch field metadata and organize by arm and event"
   [url token]
   (let [field-names (export-field-names url token)
-        fields (export-dictionary url token)
+        fields (export-fields url token)
         mappings (export-mappings url token)
         events (export-events url token)
         arms (export-arms url token)]

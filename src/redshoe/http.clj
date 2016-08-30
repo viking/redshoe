@@ -21,7 +21,7 @@
     (when (= 200 (:status request))
       (xml/parse (:body request)))))
 
-(defn export-dictionary
+(defn export-fields
   "Fetch the data dictionary from the REDCap API"
   [url token]
   (do-export url token "metadata" {}))
