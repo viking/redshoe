@@ -1,15 +1,93 @@
 (ns redshoe.util
   (:require [clojure.string :as string]
             [redshoe.http :as http]
-            [redshoe.xml :as xml]))
+            [redshoe.xml :as xml]
+            clj-time.format))
 
 ; Helper composition functions
-(def export-fields (comp xml/records->seq http/export-fields))
 (def export-arms (comp xml/arms->seq http/export-arms))
 (def export-events (comp xml/events->seq http/export-events))
 (def export-mappings (comp xml/items->seq http/export-mappings))
 (def export-records (comp xml/records->seq http/export-records))
 (def export-field-names (comp xml/fields->seq http/export-field-names))
+
+(defn- parse-datetime
+  [fmt-str value]
+  (->
+    (clj-time.format/formatter-local fmt-str)
+    (clj-time.format/parse-local value)))
+
+(def ^{:private true} validation-coercions
+  {"date_ymd" (partial parse-datetime "yyyy-MM-dd")
+   "date_mdy" (partial parse-datetime "MM-dd-yyyy")
+   "date_dmy" (partial parse-datetime "dd-MM-yyyy")
+   "time" (partial parse-datetime "HH:mm")
+   "datetime_ymd" (partial parse-datetime "yyyy-MM-dd HH:mm")
+   "datetime_mdy" (partial parse-datetime "MM-dd-yyyy HH:mm")
+   "datetime_dmy" (partial parse-datetime "dd-MM-yyyy HH:mm")
+   "datetime_seconds_ymd" (partial parse-datetime "yyyy-MM-dd HH:mm:ss")
+   "datetime_seconds_mdy" (partial parse-datetime "MM-dd-yyyy HH:mm:ss")
+   "datetime_seconds_dmy" (partial parse-datetime "dd-MM-yyyy HH:mm:ss")
+   "number" bigdec
+   "integer" #(Integer. %)})
+
+(defn- process-field
+  [field]
+  (let [{ftype :field_type
+         vtype :text_validation_type_or_show_slider_number
+         vmin :text_validation_min
+         vmax :text_validation_max
+         choices :select_choices_or_calculations
+         identifier :identifier} field
+        field (->
+                (if (contains? field :identifier)
+                  (assoc field :identifier (= identifier "y"))
+                  field)
+                (dissoc
+                  :text_validation_type_or_show_slider_number
+                  :text_validation_min
+                  :text_validation_max
+                  :select_choices_or_calculations))]
+
+    (case ftype
+      "text"
+      (let [f (get validation-coercions vtype)]
+        (->>
+          (filter second
+                  {:type vtype
+                   :min (and f vmin (f vmin))
+                   :max (and f vmax (f vmax))
+                   })
+          (into {})
+          (assoc field :validation)))
+
+      "slider"
+      (->>
+        (filter second
+                {:show_slider_number vtype
+                 :slider_labels (string/split choices #"\s+\|\s+")})
+        (into {})
+        (merge field))
+
+      ("dropdown" "radio" "checkbox")
+      (->>
+        (string/split choices #"\s+\|\s+")
+        (mapv #(zipmap [:code :label] (string/split % #",\s+")))
+        (assoc field :choices))
+
+      "calc"
+      (assoc field :formula choices)
+
+      ; default
+      field)))
+
+(defn export-fields
+  "Export field metadata from the REDCap API and process"
+  [url token]
+  (->>
+    (http/export-fields url token)
+    (xml/records->seq)
+    (map process-field)))
 
 (defn- add-exports-to-field
   [field-name-groups field]
