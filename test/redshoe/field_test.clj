@@ -246,4 +246,10 @@
                  {:type "checkbox"
                   :choices [{:code "0" :label "foo"}
                             {:code "A" :label "bar"}
-                            {:code "z" :label "baz"}]})))))))
+                            {:code "z" :label "baz"}]}))))))
+
+  (testing "calc field type"
+    (let [field {:field_type "calc"}]
+      (testing "formula"
+        (let [field (merge field {:select_choices_or_calculations "foo bar"})]
+          (is (= (process-field field) {:type "calc" :formula "foo bar"})))))))
