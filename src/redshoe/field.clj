@@ -61,13 +61,15 @@
 
     (case field-type
       "text"
-      (let [converter (get validation-converters validation-type)]
-        ; Convert min and max values from strings to the appropriate type
-        (as->
-          {:type validation-type} v
-          (merge v (and converter validation-min {:min (converter validation-min)}))
-          (merge v (and converter validation-max {:max (converter validation-max)}))
-          (assoc field :validation v)))
+      (if validation-type
+        (let [converter (get validation-converters validation-type)]
+          ; Convert min and max values from strings to the appropriate type
+          (as->
+            {:type validation-type} v
+            (merge v (and converter validation-min {:min (converter validation-min)}))
+            (merge v (and converter validation-max {:max (converter validation-max)}))
+            (assoc field :validation v)))
+        field)
 
       "slider"
       (as-> field f

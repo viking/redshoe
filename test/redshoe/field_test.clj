@@ -35,6 +35,8 @@
 (deftest processing-validation
   (testing "text field type"
     (let [field {:field_type "text"}]
+      (testing "no validation type"
+        (is (= (process-field field) {:type "text"})))
       (testing "number validation type"
         (let [field (merge field (:number text-validation-types))]
           (is (= (process-field field)
