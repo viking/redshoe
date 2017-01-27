@@ -6,8 +6,14 @@
 (defn- str->datetime
   [fmt-str value]
   (->
-    (clj-time.format/formatter fmt-str)
-    (clj-time.format/parse value)))
+    (clj-time.format/formatter-local fmt-str)
+    (clj-time.format/parse-local value)))
+
+(defn- str->time
+  [fmt-str value]
+  (->
+    (clj-time.format/formatter-local fmt-str)
+    (clj-time.format/parse-local-time value)))
 
 (defn- str->boolean
   [value]
@@ -29,7 +35,7 @@
   {"date_ymd" convert-date
    "date_mdy" convert-date
    "date_dmy" convert-date
-   "time" (partial convert-datetime "HH:mm")
+   "time" (partial str->time "HH:mm")
    "datetime_ymd" convert-datetime
    "datetime_mdy" convert-datetime
    "datetime_dmy" convert-datetime
