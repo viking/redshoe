@@ -79,10 +79,12 @@
           f))
 
       ("dropdown" "radio" "checkbox")
-      (->>
-        (string/split choices #"\s*\|\s*")
-        (mapv #(zipmap [:code :label] (string/split % #",\s+")))
-        (assoc field :choices))
+      (if choices
+        (->>
+          (string/split choices #"\s*\|\s*")
+          (mapv #(zipmap [:code :label] (string/split % #",\s+")))
+          (assoc field :choices))
+        field)
 
       "calc"
       (assoc field :formula choices)

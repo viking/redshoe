@@ -216,4 +216,34 @@
           (is (= (process-field field) {:type "slider" :show_slider_number true}))))
       (testing "slider labels"
         (let [field (merge field {:select_choices_or_calculations "foo | bar | baz"})]
-          (is (= (process-field field) {:type "slider" :slider_labels ["foo" "bar" "baz"]})))))))
+          (is (= (process-field field) {:type "slider" :slider_labels ["foo" "bar" "baz"]}))))))
+
+  (testing "dropdown field type"
+    (let [field {:field_type "dropdown"}]
+      (testing "choices"
+        (let [field (merge field {:select_choices_or_calculations "0, foo | A, bar | z, baz"})]
+          (is (= (process-field field)
+                 {:type "dropdown"
+                  :choices [{:code "0" :label "foo"}
+                            {:code "A" :label "bar"}
+                            {:code "z" :label "baz"}]}))))))
+
+  (testing "radio field type"
+    (let [field {:field_type "radio"}]
+      (testing "choices"
+        (let [field (merge field {:select_choices_or_calculations "0, foo | A, bar | z, baz"})]
+          (is (= (process-field field)
+                 {:type "radio"
+                  :choices [{:code "0" :label "foo"}
+                            {:code "A" :label "bar"}
+                            {:code "z" :label "baz"}]}))))))
+
+  (testing "checkbox field type"
+    (let [field {:field_type "checkbox"}]
+      (testing "choices"
+        (let [field (merge field {:select_choices_or_calculations "0, foo | A, bar | z, baz"})]
+          (is (= (process-field field)
+                 {:type "checkbox"
+                  :choices [{:code "0" :label "foo"}
+                            {:code "A" :label "bar"}
+                            {:code "z" :label "baz"}]})))))))
