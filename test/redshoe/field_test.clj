@@ -207,4 +207,13 @@
                  {:type "text"
                   :validation {:type "time"
                                :min (t/local-time 23 59)
-                               :max (t/local-time 23 59)}})))))))
+                               :max (t/local-time 23 59)}}))))))
+
+  (testing "slider field type"
+    (let [field {:field_type "slider"}]
+      (testing "show slider number"
+        (let [field (merge field {:text_validation_type_or_show_slider_number "number"})]
+          (is (= (process-field field) {:type "slider" :show_slider_number true}))))
+      (testing "slider labels"
+        (let [field (merge field {:select_choices_or_calculations "foo | bar | baz"})]
+          (is (= (process-field field) {:type "slider" :slider_labels ["foo" "bar" "baz"]})))))))

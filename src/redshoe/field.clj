@@ -45,41 +45,38 @@
    "number" str->number
    "integer" str->integer}))
 
+; Aliases for long keywords
+(def text-validation-type-key :text_validation_type_or_show_slider_number)
+(def show-slider-number-key :text_validation_type_or_show_slider_number)
+(def choices-key :select_choices_or_calculations)
+
 (defn- process-validation
   [field]
   (let
     [{field-type :type
-      validation-type :text_validation_type_or_show_slider_number
+      validation-type text-validation-type-key
       validation-min :text_validation_min
       validation-max :text_validation_max
-      choices :select_choices_or_calculations} field
-    field (dissoc
-            field
-            :text_validation_type_or_show_slider_number
-            :text_validation_min
-            :text_validation_max
-            :select_choices_or_calculations)]
+      choices choices-key} field]
 
     (case field-type
       "text"
       (let [converter (get validation-converters validation-type)]
         ; Convert min and max values from strings to the appropriate type
-        (->>
-          (filter second
-                  {:type validation-type
-                   :min (and converter validation-min (converter validation-min))
-                   :max (and converter validation-max (converter validation-max))
-                   })
-          (into {})
-          (assoc field :validation)))
+        (as->
+          {:type validation-type} v
+          (merge v (and converter validation-min {:min (converter validation-min)}))
+          (merge v (and converter validation-max {:max (converter validation-max)}))
+          (assoc field :validation v)))
 
       "slider"
-      (->>
-        (filter second
-                {:show_slider_number validation-type
-                 :slider_labels (string/split choices #"\s+\|\s+")})
-        (into {})
-        (merge field))
+      (as-> field f
+        (if (contains? f show-slider-number-key)
+          (assoc f :show_slider_number (= validation-type "number"))
+          f)
+        (if choices
+          (assoc f :slider_labels (string/split choices #"\s+\|\s+"))
+          f))
 
       ("dropdown" "radio" "checkbox")
       (->>
@@ -111,12 +108,20 @@
             (if (contains? f k) (update f k v) f))
           field field-value-conversions))
 
+; Keys to remove at the end of processing
+(def ^{:private true} field-key-removals
+  [text-validation-type-key
+   :text_validation_min
+   :text_validation_max
+   choices-key])
+
 (defn process-field
   [field]
-  (->
-    (clojure.set/rename-keys field field-key-changes)
-    (convert-values)
-    (process-validation)))
+  (as-> field f
+    (clojure.set/rename-keys f field-key-changes)
+    (convert-values f)
+    (process-validation f)
+    (apply dissoc f field-key-removals)))
 
 (defn try-process-field
   [field]
