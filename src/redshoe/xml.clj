@@ -37,6 +37,11 @@
   (when (= :items tag)
     (map process-item-tag content)))
 
+(defn- process-malformed-items-tag
+  [{ tag :tag content :content }]
+  (when (= :items tag)
+    (into {} (map process-generic-tag content))))
+
 (defn- process-fields-tag
   [{ tag :tag content :content }]
   (when (= :fields tag)
@@ -54,13 +59,21 @@
   [doc]
   (process-events-tag doc))
 
-(defn items->seq
+(defn mappings->seq
   [doc]
   (process-items-tag doc))
 
-(defn fields->seq
+(defn field-names->seq
   [doc]
   (process-fields-tag doc))
+
+(defn fields->seq
+  [doc]
+  (process-records-tag doc))
+
+(defn project-info->map
+  [doc]
+  (process-malformed-items-tag doc))
 
 ; Conversion from sequences to XML structures
 
@@ -113,6 +126,13 @@
    :attrs nil
    :content (mapv process-item-map s) })
 
+(defn- process-project-info-map
+  [m]
+  {
+   :tag :items
+   :attrs nil
+   :content (mapv process-generic-pairs m) })
+
 (defn- process-fields-seq
   [s]
   {
@@ -132,10 +152,18 @@
   [s]
   (process-events-seq s))
 
-(defn seq->items
+(defn seq->mappings
   [s]
   (process-items-seq s))
 
-(defn seq->fields
+(defn seq->field-names
   [s]
   (process-fields-seq s))
+
+(defn seq->fields
+  [s]
+  (process-records-seq s))
+
+(defn map->project-info
+  [m]
+  (process-project-info-map m))
