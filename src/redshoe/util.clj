@@ -1,6 +1,7 @@
 (ns redshoe.util
   (:require [clojure.string :as string]
             [redshoe.field :as field]
+            [redshoe.project-info :as project-info]
             [redshoe.http :as http]
             [redshoe.xml :as xml]))
 
@@ -11,6 +12,7 @@
 (def raw-export-records (comp xml/records->seq http/export-records))
 (def raw-export-field-names (comp xml/field-names->seq http/export-field-names))
 (def raw-export-fields (comp xml/fields->seq http/export-fields))
+(def raw-export-project-info (comp xml/project-info->map http/export-project-info))
 
 (defn export-fields
   "Export field metadata from the REDCap API and process"
@@ -59,6 +61,12 @@
       (organize-events events (group-by :unique_event_name mappings))
       (group-by :arm_num)
       (organize-arms arms))))
+
+(defn export-project-info
+  [url token]
+  (->
+    (raw-export-project-info url token)
+    (project-info/process-project-info)))
 
 (defn export-chunked-records
   "Fetch records from the REDCap API in chunks to mitigate REDCap API timeout
