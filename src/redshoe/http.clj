@@ -68,6 +68,13 @@
   [url token field-name]
   (export-records url token { :fields field-name }))
 
+(defn export-project-info
+  "Fetch information about the project, such as name, purpose, etc."
+  ([url token]
+   (export-project-info url token {}))
+  ([url token options]
+   (do-export url token "project" options)))
+
 (defn import-records
   "Import records to the REDCap API"
   ([url token tags]
